@@ -89,6 +89,23 @@ var sumBelow = function(n) {
 // 6. Get the integers within a range (x, y).
 // range(2,9); // [3,4,5,6,7,8]
 var range = function(x, y) {
+	var result = [];
+
+	if( Math.abs( x  - y ) <= 1  || Math.abs( y  - x ) <= 1 ){
+
+		return result;
+	}else{
+
+		if(x < y){
+			x++;
+		}else{
+			x--;
+		}
+
+		result = [ ...range(x,y)];
+		result.unshift(x);
+		return result;
+	}
 };
 
 // 7. Compute the exponent of a number.
@@ -232,7 +249,30 @@ var divide = function(x, y) {
 // gcd(4,36); // 4
 // http://www.cse.wustl.edu/~kjg/cse131/Notes/Recursion/recursion.html
 // https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/the-euclidean-algorithm
+
+// 24, 88
+// 24 % 88 ==>  x = 88, y = 24
+// 88 % 24 ==> x = 24, y = 16
+// 24 % 16 ==> x = 16, y = 8
+
 var gcd = function(x, y) {
+	if( x < 0 || y  < 0 ){
+		return null;
+	}
+
+	if(x === 0 || y === 0){
+		return 0;
+	}
+
+	if( x === 1 || y === 1){
+		return 1;
+	}
+
+	if( x % y === 0){
+		return y;
+	}else{
+		return gcd( y , x % y);
+	}
 };
 
 // 15. Write a function that compares each character of two strings and returns true if
@@ -300,7 +340,26 @@ var buildList = function(value, length) {
 // For numbers which are multiples of both three and five, output “FizzBuzz” instead of the number.
 // fizzBuzz(5) // ['1','2','Fizz','4','Buzz']
 var fizzBuzz = function(n) {
+	var result = [];
 
+	if(n === 1){
+		return n.toString();
+	}else{
+		result = [...fizzBuzz(n-1)];
+		var str = '';
+		if(n%15 === 0){
+			str = 'FizzBuzz';
+		}else if(n%3 === 0){
+			str = 'Fizz';
+		}else if(n%5 === 0){
+			str = 'Buzz';
+		}else{
+			str = n.toString();
+		}
+
+		result.push(str);
+		return result;
+	}
 };
 
 // 20. Count the occurence of a value in a list.
@@ -370,23 +429,24 @@ var countValuesInObj = function(obj, value) {
 
 // 24. Find all keys in an object (and nested objects) by a provided name and rename
 // them to a provided new name while preserving the value stored at that key.
+
+// {e:{x:'y'},t:{r:{e:'r'},p:{y:'r'}},y:'e'}
+// e -> f
+
 var replaceKeysInObj = function(obj, oldKey, newKey) {
-	var object = {}; 
 	for(var k in obj){
 
 		if(typeof obj[k] === 'object'){
-			object[k]= replaceKeysInObj(obj[k], oldKey, newKey);
-		}else{
-			object[k] = obj[k];
+			obj[k]= replaceKeysInObj(obj[k], oldKey, newKey);
 		}
 
 		if(k === oldKey ){
-			obj[newKey] = object[k];
+			obj[newKey] = obj[k];
 			delete obj[k];
 		}
 	};
 
-	return object;
+	return obj;
 };
 
 // 25. Get the first n Fibonacci numbers. In the Fibonacci sequence, each subsequent
@@ -562,11 +622,12 @@ var compress = function(list) {
 var augmentElements = function(array, aug) {
 	var result = [];
 
-	if(!list.length){
+	if(!array.length){
 		return result;
 	}else{
-		result = [...compress(list.slice(1))];
-		result.push(aug);
+		result = [...augmentElements(array.slice(1), aug)];
+		array[0].push(aug);
+		result.unshift(array[0]);
 		return result;
 	}
 
@@ -576,6 +637,21 @@ var augmentElements = function(array, aug) {
 // minimizeZeroes([2,0,0,0,1,4]) // [2,0,1,4]
 // minimizeZeroes([2,0,0,0,1,0,0,4]) // [2,0,1,0,4]
 var minimizeZeroes = function(array) {
+	
+	var result = []; 
+
+	if(!array.length){
+		return [];
+	}else{
+		result = [...minimizeZeroes(array.slice(1))];
+		if(array[0] === 0 && result[0] !== 0){
+			result.unshift(array[0]);
+
+		}else if(array[0] !== 0){
+			result.unshift(array[0]);
+		}
+		return result;
+	}
 };
 
 // 35. Alternate the numbers in an array between positive and negative regardless of
@@ -583,12 +659,60 @@ var minimizeZeroes = function(array) {
 // alternateSign([2,7,8,3,1,4]) // [2,-7,8,-3,1,-4]
 // alternateSign([-2,-7,8,3,-1,4]) // [2,-7,8,-3,1,-4]
 var alternateSign = function(array) {
+	var result = []; 
+
+	if(!array.length){
+		return result;
+	}else if(array.length == 1){
+		return [( array[0] < 0 ? -1 * array[0] : array[0])];
+	}else{
+		var currArr = alternateSign(array.slice(0, array.length-1));
+		var currElem = array[array.length-1];
+		if( currArr[currArr.length-1] > 0 &&  currElem > 0){
+
+			currElem *= -1;
+		}else if( currArr[currArr.length-1] < 0 && currElem < 0){
+
+			currElem *= -1;
+		}
+
+		result = [...currArr, currElem];
+		return result;
+	}
 };
 
 // 36. Given a string, return a string with digits converted to their word equivalent.
 // Assume all numbers are single digits (less than 10).
 // numToText("I have 5 dogs and 6 ponies"); // "I have five dogs and six ponies"
 var numToText = function(str) {
+	var numText = {
+		'1': 'one',
+		'2': 'two',
+		'3': 'three',
+		'4': 'four',
+		'5': 'five',
+		'6': 'six',
+		'7': 'seven',
+		'8': 'eight',
+		'9': 'nine',
+		'0': 'zero'
+	};
+
+	var result = '';
+
+	if(!str.length){
+		return result;
+	}else{
+		var currStr = numToText(str.slice(1));
+		if(numText[str[0]]){
+			result += numText[str[0]];
+		}else{
+			result += str[0];
+		}
+		result += currStr;
+
+		return result;
+	}
 };
 
 
@@ -596,19 +720,98 @@ var numToText = function(str) {
 
 // 37. Return the number of times a tag occurs in the DOM.
 var tagCount = function(tag, node) {
+	node = node || 'body';
+
+	var count = 0;
+
+	var $body = $(node).children();
+
+	if(!$body.length){
+		return count;
+	}
+
+	$body.each((ele) => {
+
+
+		if( $($body[ele]).children() ){
+			count += tagCount(tag, $body[ele]);
+		}
+
+		if( $body[ele] == $(tag)[0] ){
+			count++;
+		}
+	});
+
+	return count;
 };
 
 // 38. Write a function for binary search.
 // var array = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
 // binarySearch(array, 5) // 5
 // https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search
+
+// [1,2,3,4,5,6,7] , 1
+// 1st --> midpoint = 3, bs(arr, target, 0, 2) min = 0, max = 2
+// 2nd --> midpoint = 1, bs(arr, target, 2, 2) min = 0, max = 0
+
+
 var binarySearch = function(array, target, min, max) {
+
+	min = (min === undefined) ?  0  : min;
+	max = (max === undefined) ? array.length-1 : max;
+	
+	if(min > max){
+		return null;
+	}
+
+	var midpoint = min + Math.floor((max-min)/2);
+	if(array[midpoint] === target){
+		return midpoint;
+	}else if(array[midpoint] < target){
+		return binarySearch(array, target, midpoint+1, max);
+	}else{
+		return binarySearch(array, target, min, midpoint-1);
+	}
 };
 
 // 39. Write a merge sort function.
 // mergeSort([34,7,23,32,5,62]) // [5,7,23,32,34,62]
 // https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/divide-and-conquer-algorithms
+
+// [34,7,23,32,5,62]
+// 1: midpoint = 3    mergeSort([34,7,23])
+// 2: midpoint = 1    mergeSort([34])
+
+
 var mergeSort = function(array) {
+	var result = [];
+
+	if(!array.length){
+		return result;
+	}else if(array.length === 1){
+		return array;
+	}else{
+		var midpoint = Math.floor(array.length/2);
+		var leftArr = mergeSort(array.slice(0, midpoint));
+
+		var rightArr = mergeSort(array.slice(midpoint));
+
+		var leftIndex = 0;
+		var rightIndex = 0;
+
+		while(leftIndex < leftArr.length && rightIndex < rightArr.length){
+			if(leftArr[leftIndex] < rightArr[rightIndex]){
+				result.push(leftArr[leftIndex]);
+				leftIndex++;
+			}else{
+				result.push(rightArr[rightIndex]);
+				rightIndex++;
+			}
+		}
+
+		return result.concat(leftArr.slice(leftIndex)).concat(rightArr.slice(rightIndex));
+		
+	}
 };
 
 // 40. Deeply clone objects and arrays.
@@ -616,5 +819,39 @@ var mergeSort = function(array) {
 // var obj2 = clone(obj1);
 // console.log(obj2); // {a:1,b:{bb:{bbb:2}},c:3}
 // obj1 === obj2 // false
+// {a:1,b:{bb:{bbb:2}},c:3};
 var clone = function(input) {
+
+	var collection = (Array.isArray(input)) ? [] : {};
+
+	if(Array.isArray(input) && !input.length){
+		return collection;
+	}
+
+	if(typeof input === 'object' && Object.keys(input).length === 0){
+		return collection;
+	}
+
+	if(Array.isArray(input)){
+
+		input.forEach((item) => {
+			if(Array.isArray(item)){
+				collection.push(clone(item));
+			}else{
+				collection.push(item);
+			}
+		});
+	}
+
+	if(typeof input === 'object'){
+		for(var k in input){
+			if(typeof input[k] === 'object'){
+				collection[k] = clone(input[k]);
+			}else{
+				collection[k] = input[k];
+			}
+		};
+	}
+
+	return collection;
 };
