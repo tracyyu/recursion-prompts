@@ -1,0 +1,4 @@
+var getElementsByClassName = function (className) {
+
+
+};
