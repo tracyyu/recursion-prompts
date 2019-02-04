@@ -737,7 +737,7 @@ var tagCount = function(tag, node) {
 			count += tagCount(tag, $body[ele]);
 		}
 
-		if( $body[ele] == $(tag)[0] ){
+		if( $($body[ele]).is(tag)){
 			count++;
 		}
 	});
